@@ -12,7 +12,7 @@ export interface CustomerResource {
   email: string;
 }
 
-const ENDPOINTS: Record<string, string> = {
+export const ENDPOINTS: Record<string, string> = {
   'first': '/api/v1/taxpayer-registry',
   '/api/v1/taxpayer-registry': '/api/v1/full-name',
   '/api/v1/full-name': '/api/v1/birthday',
@@ -55,10 +55,18 @@ export default class CustomerService {
     const taxpayerResgitry = new TaxpayerRegistry(taxpayer, country);
     
     const customer = await this.customerRepository.findByEmail(email);
-
     if( customer ) {
+      //improve move this rule to domain model customer
+      const address = new AddresService({
+        cep: customer.cep as string,
+        city: customer.city as string,
+        state: customer.state as string,
+        address: customer.address as string,
+        number: customer.number as number
+      });
+
       const customerDomain = new Customer({
-        ...customer, countryCode
+        ...customer, countryCode, address
       });
       
       customerDomain.updateTaxpayerRegistry(taxpayerResgitry);
@@ -77,20 +85,26 @@ export default class CustomerService {
     try {
       const customer = await this.customerRepository.findByEmail(email);
       if( customer && customer.taxpayerRegistry ) {
-        const country = this.countryFactory.buildCountry(customer.countryCode as CountryCode);
+        const country =  await this.countryFactory.buildCountry(customer.countryCode as CountryCode);
         const taxpayerRegistry = new TaxpayerRegistry(customer.taxpayerRegistry, country);
-    
+          //improve move this rule to domain model customer
+        const address = new AddresService({
+          cep: customer.cep as string,
+          city: customer.city as string,
+          state: customer.state as string,
+          address: customer.address as string,
+          number: customer.number as number
+        });
+
         const customerDomain = new Customer({
-          ...customer, taxpayerRegistry
+          ...customer, taxpayerRegistry, address,
         });
         customerDomain.firstName = firstName;
         customerDomain.lastName = lastName;
         //move this role to domain layer
         //domain need to select your next endpoint
         if(customer.nextEndpoint) {
-          customerDomain.updateNextEndpoint(
-            ENDPOINTS[customer.nextEndpoint]
-          )
+          customerDomain.changeNextEndpoint(customer.nextEndpoint)
         }  
         await this.customerRepository.update(customerDomain, customer.id);
         const customerUpdated = await this.customerRepository.findByEmail(email);
@@ -107,16 +121,21 @@ export default class CustomerService {
     if( customer && customer.taxpayerRegistry ) {
       const country = this.countryFactory.buildCountry(customer.countryCode as CountryCode);
       const taxpayerRegistry = new TaxpayerRegistry(customer.taxpayerRegistry, country);
-  
+      const address = new AddresService({
+        cep: customer.cep as string,
+        city: customer.city as string,
+        state: customer.state as string,
+        address: customer.address as string,
+        number: customer.number as number
+      });
+
       const customerDomain = new Customer({
-        ...customer, taxpayerRegistry
+        ...customer, taxpayerRegistry, address
       });
       customerDomain.birthday = birthday
       if(customer.nextEndpoint) {
-        customerDomain.updateNextEndpoint(
-          ENDPOINTS[customer.nextEndpoint]
-        )
-      }
+        customerDomain.changeNextEndpoint(customer.nextEndpoint)
+      }  
       await this.customerRepository.update(customerDomain, customer.id);
       const customerUpdated = await this.customerRepository.findByEmail(email);
       return customerUpdated;
@@ -129,16 +148,20 @@ export default class CustomerService {
     if( customer && customer.taxpayerRegistry ) {
       const country = this.countryFactory.buildCountry(customer.countryCode as CountryCode);
       const taxpayerRegistry = new TaxpayerRegistry(customer.taxpayerRegistry, country);
-  
+      const address = new AddresService({
+        cep: customer.cep as string,
+        city: customer.city as string,
+        state: customer.state as string,
+        address: customer.address as string,
+        number: customer.number as number
+      });
       const customerDomain = new Customer({
-        ...customer, taxpayerRegistry
+        ...customer, taxpayerRegistry, address
       });
       customerDomain.phoneNumber = phoneNumber
       if(customer.nextEndpoint) {
-        customerDomain.updateNextEndpoint(
-          ENDPOINTS[customer.nextEndpoint]
-        )
-      }
+        customerDomain.changeNextEndpoint(customer.nextEndpoint)
+      }  
       await this.customerRepository.update(customerDomain, customer.id);
       const customerUpdated = await this.customerRepository.findByEmail(email);
       return customerUpdated;
@@ -180,10 +203,8 @@ export default class CustomerService {
         state,
       })
       if(customer.nextEndpoint) {
-        customerDomain.updateNextEndpoint(
-          ENDPOINTS[customer.nextEndpoint]
-        )
-      }
+        customerDomain.changeNextEndpoint(customer.nextEndpoint)
+      }  
       await this.customerRepository.update(customerDomain, customer.id);
       const customerUpdated = await this.customerRepository.findByEmail(email);
       return customerUpdated;
@@ -213,10 +234,8 @@ export default class CustomerService {
       await customerDomain.addAmount({ amount });
 
       if(customer.nextEndpoint) {
-        customerDomain.updateNextEndpoint(
-          ENDPOINTS[customer.nextEndpoint]
-        )
-      }
+        customerDomain.changeNextEndpoint(customer.nextEndpoint)
+      }  
       await this.amountRepository.save(customerDomain, customer.id);
       await this.customerRepository.update(customerDomain, customer.id);
       const customerUpdated = await this.customerRepository.findByEmail(email);

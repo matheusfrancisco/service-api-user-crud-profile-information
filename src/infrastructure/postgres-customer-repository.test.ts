@@ -84,6 +84,8 @@ describe('Customer Repository', () => {
 
 
   afterEach(async() => {
+    await repository.delete({});
+    await repositoryAmount.delete({});
     connection.close()
   });
 

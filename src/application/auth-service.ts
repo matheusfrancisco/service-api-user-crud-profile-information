@@ -2,6 +2,7 @@ import { CustomerRepository } from '../domain/customer/customer-repository';
 import * as jwt from "jsonwebtoken";
 import { ServiceError } from '../service-error';
 import bcrypt from 'bcrypt';
+import {EndpointStrategy} from '../domain/customer/strategy-endpoint'
 
 export interface Token {
   token: string;
@@ -43,7 +44,7 @@ export default class AuthService {
     try {
       const userPayload = await jwt.verify(token, "SECRET") as any
       const user = await this.customerRepository.findByEmail(userPayload.email)
-      if(user && user.nextEndpoint === url) {
+      if(user && EndpointStrategy.validate(url, user, user.nextEndpoint)) {
         return {
           id: userPayload.id,
           email: userPayload.email,

@@ -3,6 +3,8 @@ import TaxpayerRegistry from './taxpayer-registry';
 import { AddressInterface } from '../address/address';
 import  AddressService, { validateAddress } from '../address/address-service';
 import Amount, { AmountInterface } from '../amount/amount';
+import {EndpointStrategy} from './strategy-endpoint';
+import {ENDPOINTS} from '../../application/customer-service';
 
 export default class Customer {
   public nextEndpoint: string;
@@ -116,6 +118,15 @@ export default class Customer {
     amount
   }: AmountInterface) {
     this._amount = new Amount({ amount });
+  }
+
+  public changeNextEndpoint(nextEndpoint: string) {
+    const user = this.toRepository();
+
+    const changeEndpoint = EndpointStrategy.validateChange({...user, amount: this._amount?.amountValue}, nextEndpoint)
+    if(changeEndpoint) { 
+      this.updateNextEndpoint(ENDPOINTS[nextEndpoint]);
+    }
   }
 
   public get amountVAlue(): Amount| undefined {

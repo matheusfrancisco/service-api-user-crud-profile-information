@@ -3,6 +3,7 @@ import { factoryServer } from '../server';
 import request from 'supertest';
 import { createConnection, getRepository } from 'typeorm';
 import { CustomerEntity } from './infrastructure/entity/customer-entity';
+
 describe('integratoin test', () => {
   let server: any;
   let connection: any;
@@ -25,6 +26,10 @@ describe('integratoin test', () => {
     await repositoryCustomerTest.delete({});
     
   });
+
+  afterEach( async () => {
+    await repositoryCustomerTest.delete({});
+  })
 
 
   it('should register a customer with http call', async () => {  

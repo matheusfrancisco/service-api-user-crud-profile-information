@@ -40,14 +40,14 @@ export const validateAddress = async ({cep, address, number, city, state}: Addre
 
 //#Improve domain anemico
 export default class AddresService {
-  public readonly cep: string;
-  public readonly address: string;
-  public readonly number: number;
-  public readonly city: string;
-  public readonly state: string;
+  public readonly cep: string | undefined;
+  public readonly address: string | undefined;
+  public readonly number: number| undefined;
+  public readonly city: string| undefined;
+  public readonly state: string| undefined;
 
   constructor({cep, address, number, city, state}: AddressInterface ) {
-    this.cep = this.sanitazeCep(cep);
+    this.cep = cep ? this.sanitazeCep(cep): cep;
     this.address = address;
     this.city = city;
     this.number = number;
