@@ -128,3 +128,14 @@ header: Authorization: token
 
 - [x] The order of the end-points must be maintained and checked, to achieve this, create a place where you can save the order of the end-points. Such that CPF -> Full Name -> Birthday -> Phone Number -> Address -> Amount Requested order must be enforce. 
 - [] If a request is made out of order, it must return message informing an error. If the request is valid with the correct order, it must inform which is the next end-point the User has to request to
+
+
+## Code Structure Design (Architecture layer)
+We try to use layer architecture to create this code
+![](./layer.png)
+
+
+## Test Approach
+
+We try to use this approach to test https://martinfowler.com/articles/microservice-testing/
+
