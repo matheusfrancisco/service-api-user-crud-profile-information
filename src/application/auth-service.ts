@@ -1,7 +1,7 @@
 import { CustomerRepository } from '../domain/customer/customer-repository';
 import * as jwt from "jsonwebtoken";
 import { ServiceError } from '../service-error';
-import { threadId } from 'worker_threads';
+import bcrypt from 'bcrypt';
 
 export interface Token {
   token: string;
@@ -13,7 +13,7 @@ export default class AuthService {
   async singIn(email: string, password: string) {
     try {
       const user = await this.customerRepository.findByEmail(email)
-      if (user && password === user.password) {
+      if (user && await bcrypt.compare(password, user.password)) {
         const token = this.createToken(user.id, user.email);
         return token
       }

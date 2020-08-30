@@ -1,14 +1,16 @@
 import sinon from 'sinon';
 import CustomerService from './auth-service';
+import bcrypt from 'bcrypt';
 
 
 describe('CustomerService', () => {
   it('should find user check if password match and createToken', async () => {
     const save = sinon.spy();
+    const pass = await bcrypt.hash('123123', 8);
     const findByEmail = sinon.fake.returns({
        id: 1,
        email: "matheusfrancisco@hotmail.com",
-       password: '123123'
+       password: pass
     });
     const update = sinon.spy();    
     const updateFullName = sinon.spy();
@@ -28,10 +30,12 @@ describe('CustomerService', () => {
 
   it('should return null when password doesnt  match', async () => {
     const save = sinon.spy();
+    const pass = await bcrypt.hash('123', 8);
+
     const findByEmail = sinon.fake.returns({
        id: 1,
        email: "matheusfrancisco@hotmail.com",
-       password: '123'
+       password: pass
     });
     const update = sinon.spy();    
     const updateFullName = sinon.spy();
@@ -51,10 +55,12 @@ describe('CustomerService', () => {
 
   xit('should return verify and return email and id if token valid and url order is correct', async () => {
     const save = sinon.spy();
+    const pass = await bcrypt.hash('123', 8);
+
     const findByEmail = sinon.fake.returns({
        id: 1,
        email: "matheusfrancisco@hotmail.com",
-       password: '123',
+       password: pass,
        nextEndpoint: "/api/v1/taxpayer-registry"
     });
     const update = sinon.spy();    

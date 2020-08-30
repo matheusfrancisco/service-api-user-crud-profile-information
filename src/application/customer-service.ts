@@ -4,6 +4,7 @@ import TaxpayerRegistry from '../domain/customer/taxpayer-registry';
 import { CountryCode, CountryFactory } from '../domain/customer/country';
 import { AmountRepository } from '../infrastructure/postgres-amount-repository';
 import AddresService from '../domain/address/address-service';
+import bcrypt from 'bcrypt';
 
 export interface CustomerResource {
   id: number;
@@ -22,6 +23,10 @@ const ENDPOINTS: Record<string, string> = {
   'last': 'last',
 };
 
+export const cryptPass = async(password: string) => {
+  const hashPass = await bcrypt.hash(password, 8);
+  return hashPass
+}
 
 //#TODO
 // CustomerService has members duplicate like choose the next endpoint
@@ -30,10 +35,15 @@ const ENDPOINTS: Record<string, string> = {
 // may we need to refactory this points in the future haha
 export default class CustomerService {
   constructor(private customerRepository: CustomerRepository, private amountRepository: AmountRepository, private countryFactory: CountryFactory ) {}
-
+  
+  public async cryptPass (password: string){
+    const hashPass = await bcrypt.hash(password, 8);
+    return hashPass
+  }
   async createCustomer(email: string, password: string) {
     try {
-      const user = new Customer({email, password, nextEndpoint: ENDPOINTS.first });
+      const hashPass = await this.cryptPass(password);
+      const user = new Customer({email, password: hashPass, nextEndpoint: ENDPOINTS.first });
       await this.customerRepository.save(user);
     } catch (error) {
       throw error
@@ -214,6 +224,6 @@ export default class CustomerService {
     }
   }
 
-  
+
 
 }

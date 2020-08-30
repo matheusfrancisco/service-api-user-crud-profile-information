@@ -6,7 +6,7 @@ import TaxpayerRegistry from '../domain/customer/taxpayer-registry';
 
 describe('CustomerService', () => {
   let repositoryCustomer: any;
-  it('should save customer with CustomerRespository', () => {
+  xit('should save customer with CustomerRespository', () => {
     const save = sinon.spy();
     const findByEmail = sinon.spy();
     const update = sinon.spy();    
